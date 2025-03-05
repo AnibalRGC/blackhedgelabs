@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "private": true,
   "scripts": {
+    "dev": "nuxt",
     "build": "nuxt build",
-    "dev": "nuxt dev",
     "generate": "nuxt generate",
+    "start": "nuxt start",
     "preview": "nuxt preview",
     "lint": "eslint ."
   },
