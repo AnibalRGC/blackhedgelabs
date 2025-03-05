@@ -20,6 +20,18 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Setup Tailwind CSS
+        run: |
+          mkdir -p assets/css
+          echo '@tailwind base;
+          @tailwind components;
+          @tailwind utilities;
+          
+          /* Custom styles */
+          html {
+            scroll-behavior: smooth;
+          }' > assets/css/tailwind.css
+
       - name: Generate static files
         run: npm run generate
 
@@ -32,6 +44,15 @@ jobs:
       - name: List output directory contents
         run: ls -la ./.output/public
 
+      - name: Add test file
+        run: |
+          echo '<!DOCTYPE html><html><head><title>Test Page</title></head><body><h1>Test Page</h1><p>This is a test page for GitHub Pages.</p></body></html>' > ./.output/public/test.html
+
+      - name: Check for redirects in index.html
+        run: |
+          echo "Checking index.html for redirects..."
+          grep -i "redirect\|blackhedgelabs.com" ./.output/public/index.html || echo "No redirects found in index.html"
+
       - name: Deploy to GitHub Pages
         uses: JamesIves/github-pages-deploy-action@v4
         with:
@@ -41,3 +62,18 @@ jobs:
           clean: true
           clean-exclude: |
             .nojekyll
+
+      - name: Check deployed site
+        run: |
+          echo "Checking deployed site content..."
+          curl -L -v https://anibalrgc.github.io/blackhedgelabs/ || echo "Failed to fetch site"
+        continue-on-error: true
+
+      - name: Debug Tailwind configuration
+        run: |
+          echo "Checking for Tailwind configuration files..."
+          find . -name "tailwind.config.*" -not -path "./node_modules/*"
+          echo "Checking Nuxt modules..."
+          grep -r "modules" --include="*.js" --include="*.ts" .
+          echo "Checking CSS imports..."
+          grep -r "@tailwind" --include="*.css" .
